@@ -1,0 +1,61 @@
+import pandas as pd 
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+delivary_time1=pd.read_csv("delivery_time.csv")
+# chaking shape of the data
+delivary_time1.shape
+# chaking null values
+delivary_time1.info()
+# chaking the data
+delivary_time1.head()
+#Describing the data
+delivary_time1.describe()
+#no null value so go further for outliers chaking by using box plot and histogram
+sns.distplot(delivary_time1['Delivery Time'])
+import warnings
+warnings.filterwarnings('ignore')
+warnings.simplefilter('ignore')
+## plotting boxplot for outlier detection
+sns.boxplot(delivary_time1['Delivery Time'])
+## using log transform for normal distribution
+delivary_time2=np.log(delivary_time1['Delivery Time'])
+sns.distplot(delivary_time2)
+## chaking for feature
+sns.distplot(delivary_time1['Sorting Time'])
+## Box plot
+sns.boxplot(delivary_time1['Sorting Time'])
+# Following the regression equation, our dependent variable (y) is the delivery Time
+y = delivary_time1 ['Delivery Time']
+# Similarly, our independent variable (x) is the Sorting Time
+x1 = delivary_time1 ['Sorting Time']
+# Plot a scatter plot (first we put the horizontal axis, then the vertical axis)
+plt.scatter(x1,y)
+# Name the axes
+plt.xlabel('Sorting time', fontsize = 20)
+plt.ylabel('delivery time', fontsize = 20)
+# Show the plot
+plt.show()
+import statsmodels.api as sms
+#add constant as 1
+sms.add_constant(x1)
+# Add a constant. Essentially, we are adding a new column (equal in lenght to x), which consists only of 1s
+x = sms.add_constant(x1)
+# Fitting tje model with dependent variable y & independent variable x
+results = sms.OLS(y,x).fit()
+results.summary()
+%matplotlib notebook
+# Create a scatter plot
+plt.scatter(x1,y)
+# Define the regression equation, so we can plot it later
+yhat = 1.6490*x1 +6.5827
+# Plot the regression line against the independent variable (SAT)
+fig = plt.plot(x1,yhat, lw=4, c='orange', label ='regression line')
+# Label the axes
+plt.xlabel('sorting time', fontsize = 20)
+plt.ylabel('delivary time', fontsize = 20)
+plt.show()
+#Predict for 15 and 17 sorting time
+newdata=pd.Series([15,17])
+data_pred=pd.DataFrame(newdata,columns=['Sorting Time'])
+data_pred
