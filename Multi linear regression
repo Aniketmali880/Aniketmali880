@@ -1,0 +1,132 @@
+## Assignment :- Multi linear regression
+## Problem statement
+##Building the model for the dependent variables profit with the help 
+## of indipendent variables of the data 50_Startsup
+## calling the laibreries thats are use for better model building
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+## Loading the data set
+startup1=pd.read_csv('50_startups.csv')
+## Chaking the shape of the data
+startup1.shape
+## Chaking the null values & Data types
+startup1.info()
+## discription of the data
+startup1.describe()
+## Head of the data
+startup1.head()
+## Chaking the tail
+startup1.tail()
+## EDA Of the Data set
+## chaking the feature state is dependent on target or not as this is object data type
+from sklearn import preprocessing
+label_encoder = preprocessing.LabelEncoder()
+startup1['State']= label_encoder.fit_transform(startup1['State'])
+startup1['State'].unique()
+startup1.head()
+## Chaking whether the state dependt or not on target by using scatter plot
+x1=startup1['State']
+y1=startup1['Profit']
+plt.scatter(x1, y1, c ="yellow", linewidths = 1, marker ="*", edgecolor ="black", s = 100)
+plt.title("State VS Profit")
+plt.xlabel("State")
+plt.ylabel("Profit")
+plt.show()
+## Droping the colum 
+startup2=startup1.drop('State',axis=1)
+## Chaking correlation using pairplot
+sns.pairplot(startup2)
+## chaking corelation using corelation matrix
+startup2.corr()
+## heat map
+corr = startup2.corr()
+sns.heatmap(corr, cmap="Blues", annot=True)
+## Graphical represntation
+## From above observation there is strong multicolinaroty between R&D spend & Marketing  spend so it's need to check for further chaking
+import warnings
+warnings.filterwarnings('ignore')
+warnings.simplefilter('ignore')
+## Histogram of R&D Spend
+sns.distplot(startup2['R&D Spend'])
+## boxplot  of R&D Spend
+sns.boxplot(startup2['R&D Spend'])
+## histogram of Administration
+sns.distplot(startup2['Administration'])
+##Boxplot for Administration
+sns.boxplot(startup2['Administration'])
+## Histogram of Marketing Spend
+sns.distplot(startup2['Marketing Spend'])
+## Boxplot of Marketing Spend
+sns.boxplot(startup2['Marketing Spend'])
+## Chaking the histogram of Profit
+sns.distplot(startup2['Profit'])
+l=startup2['R&D Spend']
+m=startup2['Administration']
+n=startup2['Marketing Spend']
+y=startup2['Profit']
+# Building the model
+## Building the 1st model
+import statsmodels.formula.api as smf 
+model1=smf.ols(formula="y ~ m + n+ l", data=startup2).fit()
+#Coefficients
+model1.params
+#t and p-Values
+print(model1.tvalues, '\n', model1.pvalues)
+## From above value we reject value of m&n as they are greater than 0.05 so we accept B=0
+#R squared values
+(model1.rsquared,model1.rsquared_adj)
+model1R2=model1.rsquared
+## Chaking p&t values for individual features as heat map shows some relation between features
+ml_v=smf.ols('y~l',data = startup2).fit()  
+#t and p-Values
+print(ml_v.tvalues, '\n', ml_v.pvalues) 
+## chaking for m
+ml_v=smf.ols('y~m',data = startup2).fit()  
+#t and p-Values
+print(ml_v.tvalues, '\n', ml_v.pvalues)  
+## cheking for n
+ml_v=smf.ols('y~n',data = startup2).fit()  
+#t and p-Values
+print(ml_v.tvalues, '\n', ml_v.pvalues)  
+## From above all we conclude that when we taking all features m&n values accepted null hypothesis i.e B=0 but when we checking  indidual value of p of features then m accept null hypothesis meanwhile l&n reject null hypothesis.
+## This shows there is multicolenarity between features so we need to further evaluation by calculating VIF score
+##This shows there is multicolenarity between features so we need to further evaluation by calculating VIF score
+##Calculation of VIF
+## calculating VIF score for better evaluation
+rsq_l = smf.ols('l~m+n',data=startup2).fit().rsquared  
+vif_l = 1/(1-rsq_l) 
+## Vif for m
+rsq_m = smf.ols('m~l+n',data=startup2).fit().rsquared  
+vif_m = 1/(1-rsq_m) 
+## vif for n
+rsq_n = smf.ols('n~m+l',data=startup1).fit().rsquared  
+vif_n = 1/(1-rsq_n) 
+# Storing vif values in a data frame
+
+d1 = {'Variables':['l','m','n'],'VIF':[vif_l,vif_m,vif_n]}
+Vif_frame = pd.DataFrame(d1)  
+Vif_frame
+## R2 value
+d2 = {'Variables':['l','m','n'],'R2':[rsq_l,rsq_m,rsq_n]}
+R2_frame = pd.DataFrame(d2)  
+R2_frame
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
